@@ -1064,6 +1064,15 @@ status_t AwesomePlayer::initAudioDecoder() {
                     mClient.interface(), mAudioTrack->getFormat(),
                     false,
                     mAudioTrack, componentName);
+
+        } else if (!strcasecmp(mime, MEDIA_MIMETYPE_AUDIO_WMA)) {
+
+            componentName = "OMX.TI.WMA.decode";
+
+            mAudioSource = OMXCodec::Create(
+                            mClient.interface(), mAudioTrack->getFormat(),
+                            false,
+                            mAudioTrack, componentName);
         } else {
 
             mAudioSource = OMXCodec::Create(

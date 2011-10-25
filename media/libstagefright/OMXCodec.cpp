@@ -176,6 +176,7 @@ static const CodecInfo kDecoderInfo[] = {
     { MEDIA_MIMETYPE_AUDIO_AAC, "AACDecoder" },
 //    { MEDIA_MIMETYPE_AUDIO_AAC, "OMX.PV.aacdec" },
 //    { MEDIA_MIMETYPE_AUDIO_WMA, "OMX.Nvidia.wma.decoder" },
+    { MEDIA_MIMETYPE_AUDIO_WMA, "OMX.TI.WMA.decode"},
     { MEDIA_MIMETYPE_AUDIO_G711_ALAW, "G711Decoder" },
     { MEDIA_MIMETYPE_AUDIO_G711_MLAW, "G711Decoder" },
     { MEDIA_MIMETYPE_VIDEO_MPEG4, "OMX.Nvidia.mp4.decode" },
@@ -407,6 +408,11 @@ uint32_t OMXCodec::getComponentQuirks(
         quirks |= kNeedsFlushBeforeDisable;
         quirks |= kRequiresFlushCompleteEmulation;
         quirks |= kSupportsMultipleFramesPerInputBuffer;
+    }
+    if (!strcmp(componentName, "OMX.TI.WMA.decode")) {
+        quirks |= kNeedsFlushBeforeDisable;
+        quirks |= kRequiresFlushCompleteEmulation;
+        quirks |= kDecoderLiesAboutNumberOfChannels;
     }
     if (!strncmp(componentName, "OMX.qcom.video.encoder.", 23)) {
         quirks |= kRequiresLoadedToIdleAfterAllocation;
@@ -1033,6 +1039,8 @@ void OMXCodec::setVideoInputFormat(
         compressionFormat = OMX_VIDEO_CodingMPEG4;
     } else if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_H263, mime)) {
         compressionFormat = OMX_VIDEO_CodingH263;
+    } else if (!strcasecmp(MEDIA_MIMETYPE_VIDEO_WMV, mime)) {
+        compressionFormat = OMX_VIDEO_CodingWMV;
     } else {
         LOGE("Not a supported video mime type: %s", mime);
         CHECK(!"Should not be here. Not a supported video mime type.");
@@ -1608,6 +1616,8 @@ void OMXCodec::setComponentRole(
             "video_decoder.mpeg4", "video_encoder.mpeg4" },
         { MEDIA_MIMETYPE_VIDEO_H263,
             "video_decoder.h263", "video_encoder.h263" },
+        { MEDIA_MIMETYPE_AUDIO_WMA,
+            "audio_decoder.wma", "audio_encoder.wma" },
     };
 
     static const size_t kNumMimeToRole =
